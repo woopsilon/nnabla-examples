@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import imageio
 import os
 import logging
 import argparse
@@ -144,6 +145,9 @@ def animate(args):
     # process repeated until all the test data is used
     driving_video = read_video(
         filename, dataset_params.frame_shape)  # (#frames, h, w, 3)
+    reader = imageio.get_reader(filename)
+    fps = reader.get_meta_data()['fps']
+    print("%.2f" % fps)
     driving_video = np.transpose(
         driving_video, (0, 3, 1, 2))  # (#frames, 3, h, w)
 
@@ -284,7 +288,7 @@ def animate(args):
         generated_images = [_.transpose(1, 2, 0) for _ in generated_images]
         # you might need to change ffmpeg_params according to your environment.
         mimsave(f'{os.path.join(result_dir, output_filename)}', generated_images,
-                fps=args.fps,
+                fps=fps,
                 ffmpeg_params=["-pix_fmt", "yuv420p",
                                "-vcodec", "libx264",
                                "-f", "mp4",
